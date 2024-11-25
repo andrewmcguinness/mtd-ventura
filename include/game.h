@@ -7,6 +7,9 @@ struct tile {
   int v1() const { return ((unsigned)val) >> 4; }
   int v2() const { return val & 0x0f; }
   int v(int n) const { return (n==1)?v2():v1(); }
+  bool operator == (const tile& other) const { return val == other.val; }
+  bool operator < (const tile& other) const { return val < other.val; }
+  bool operator > (const tile& other) const { return val > other.val; }
   unsigned char val;
 };
 
