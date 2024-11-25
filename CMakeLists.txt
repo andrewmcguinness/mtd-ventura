@@ -5,7 +5,8 @@ project(mtd CXX)
 set(SOURCES
 	source/game.cpp)
 
-set(TESTS test_shuffle)
+set(TESTS test_shuffle
+    test_tile)
 
 set(CMAKE_CXX_STANDARD 20)
 
