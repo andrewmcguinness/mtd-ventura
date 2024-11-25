@@ -16,6 +16,15 @@ tile pool::take() {
   return t;
 }
 
+bool pool::take(const tile& t) {
+  auto f = std::find(tiles.begin(), tiles.end(), t);
+  if (f == tiles.end()) return false;
+  auto last = tiles.back();
+  *f = last;
+  tiles.pop_back();
+  return true;
+}
+
 void deal(board& b, pool& p) {
   for (auto& h : b.hands)
     for (int i = 0; i < 15; ++i)

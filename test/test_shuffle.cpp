@@ -20,3 +20,11 @@ TEST_CASE("shuffled") {
   CHECK(found.contains(tile(4,5)) == false);
   CHECK(found.contains(tile(6,5)) == true);
 }
+
+TEST_CASE("starting") {
+  pool it;
+
+  CHECK(it.take(tile(11,11)));
+  CHECK(it.size() == 90);
+  CHECK(!it.take(tile(11,11)));
+}

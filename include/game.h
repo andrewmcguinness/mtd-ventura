@@ -27,6 +27,7 @@ struct pool {
   pool();
   int size() const { return tiles.size(); };
   tile take();
+  bool take(const tile& t);
   std::vector<tile> tiles;
 };
 
