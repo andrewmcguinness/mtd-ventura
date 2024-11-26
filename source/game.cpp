@@ -25,6 +25,12 @@ bool pool::take(const tile& t) {
   return true;
 }
 
+std::optional<tile> board::doubled() const {
+  for (const auto& tr : tracks)
+    if (tr.size() && tr.back().dub()) return tr.back();
+  return {};
+}
+
 void deal(board& b, pool& p) {
   for (auto& h : b.hands)
     for (int i = 0; i < 15; ++i)

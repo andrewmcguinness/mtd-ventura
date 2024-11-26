@@ -3,7 +3,8 @@ cmake_minimum_required(VERSION 3.25)
 project(mtd CXX)
 
 set(SOURCES
-	source/game.cpp)
+	source/game.cpp
+	source/text.cpp)
 
 set(TESTS test_shuffle
     test_tile)

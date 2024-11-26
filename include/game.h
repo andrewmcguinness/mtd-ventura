@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <optional>
 
 struct tile_pos {
   bool m1;
@@ -33,8 +34,14 @@ struct pool {
 
 struct track {
   track(int s) : start(s), end(s), train_on(false) {}
-  bool add(tile t);
-
+  int size() const { return tiles.size(); }
+  tile back() const { return tiles.back(); }
+  bool can_add(tile t) const { return t.has(end); }
+  int add(tile t) {
+    tiles.push_back(t);
+    end = t.other(t.has(end));
+    return end;
+  }
   int start;
   int end;
   bool train_on;
@@ -43,13 +50,26 @@ struct track {
 
 struct board {
   board(int np) : players(np), start(12) {
+    tracks.push_back(track(start));
     for (int i = 1; i <= players; ++i) {
       tracks.push_back(track(start));
       hands.push_back({});
+      put_train(i);
     }
-    tracks.push_back(track(start));
   }
 
+  std::optional<tile> doubled() const;
+  bool can_use(int player, int track) {
+    if (track == 0) return true;
+    if (track == player) return true;
+    return !tracks[track].train_on;
+  }
+  void take_train(int player) {
+    tracks[player].train_on = false;
+  }
+  void put_train(int player) {
+    tracks[player].train_on = true;
+  }
   int players;
   int start;
   std::vector<track> tracks;
