@@ -21,7 +21,7 @@ int main(int, char* []) {
   }
   std::cout << "\n";
 
-  make_move(b, player, m.back());
+  make_move(b, player, m1.back());
 
   std::cout << b << "\n\n";
 };

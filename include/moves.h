@@ -1,20 +1,15 @@
-#include <game.h>
-
+#include <iostream>
 #include <vector>
 #include <algorithm>
+#include "game.h"
+#include "text.h"
 
 struct move {
   tile play;
   short to;
 };
 
-ostream& operator << (ostream& out, move m) {
-  if (m.to)
-    out << m.play << "->T" << m.to;
-  else
-    out << m.play << "->T*";
-  return out;
-}
+std::ostream& operator << (std::ostream& out, move m);
 
 template <typename inserter>
 int find_moves(const board& bd,
