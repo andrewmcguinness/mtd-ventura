@@ -12,11 +12,16 @@ int main(int, char* []) {
   deal(b, p);
   std::cout << b << "\n\n";
 
+  int player = 1;
   std::vector<move> m1;
-  find_moves(b, 1, std::back_inserter(m1));
+  find_moves(b, player, std::back_inserter(m1));
 
   for (auto m : m1) {
-    std::cout << m.play << "->" << m.to << " ";
+    std::cout << m << " ";
   }
   std::cout << "\n";
+
+  make_move(b, player, m.back());
+
+  std::cout << b << "\n\n";
 };
