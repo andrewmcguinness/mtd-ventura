@@ -32,10 +32,8 @@ int main(int, char* []) {
     b.set_start(start);
 
     auto seed = start;
-    pool tiles(seed);
-    tiles.take(tile{start,start});
   
-    b.deal(tiles);
+    b.deal(pool(seed));
     std::cout << b << "\n\n";
 
     while (b.winner() == 0) {
@@ -44,9 +42,7 @@ int main(int, char* []) {
 	if (make_move(b, player, m))
 	  player = b.next_player(player);
       } else {
-	if (!tiles.empty())
-	  b.draw(player, tiles);
-	b.take_train(player);
+	b.draw(player);
 	player = b.next_player(player);
       }    
       std::cout << b << "\n\n";

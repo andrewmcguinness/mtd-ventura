@@ -67,8 +67,11 @@ struct board {
       put_train(i);
     }
   }
-  void deal(pool& p);
-  void draw(int player, pool& p) { hand_for(player).push_back(p.take()); }
+  void deal(const pool& p);
+  void draw(int player) {
+    if (!depot.empty()) hand_for(player).push_back(depot.take());
+    take_train(player);
+  }
   void set_start(int d) { start = d; for (auto& t : tracks) t.start = t.end = start; }
   std::optional<move> doubled() const;
   bool can_use(int player, int track) {
@@ -99,6 +102,7 @@ struct board {
   int players;
   int start;
   std::vector<track> tracks;
+  pool depot;
 private:
   std::vector<std::vector<tile>> hands;
 };

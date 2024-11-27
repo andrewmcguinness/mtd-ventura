@@ -37,8 +37,10 @@ std::optional<move> board::doubled() const {
   return {};
 }
 
-void board::deal(pool& p) {
+void board::deal(const pool& p) {
+  depot = p;
+  depot.take(tile{start, start});
   for (auto& h : hands)
     for (int i = 0; i < 15; ++i)
-      h.push_back(p.take());
+      h.push_back(depot.take());
 }
