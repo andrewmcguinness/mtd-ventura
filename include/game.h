@@ -24,8 +24,8 @@ struct tile {
   unsigned char val;
 };
 
-struct pool {
-  pool(long seed = 0);
+struct depot {
+  depot(long seed = 0);
   int size() const { return tiles.size(); }
   int empty() const { return tiles.empty(); }
   tile take();
@@ -67,8 +67,8 @@ struct board {
       put_train(i);
     }
   }
-  void deal(pool& p);
-  void draw(int player, pool& p) { hand_for(player).push_back(p.take()); }
+  void deal(depot& p);
+  void draw(int player, depot& p) { hand_for(player).push_back(p.take()); }
   void set_start(int d) { start = d; for (auto& t : tracks) t.start = t.end = start; }
   std::optional<move> doubled() const;
   bool can_use(int player, int track) {
@@ -103,4 +103,4 @@ private:
   std::vector<std::vector<tile>> hands;
 };
 
-void deal(board& b, pool& p);
+void deal(board& b, depot& p);

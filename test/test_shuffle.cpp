@@ -6,7 +6,7 @@
 #include <set>
 
 TEST_CASE("shuffled") {
-  pool it;
+  depot it;
   std::set<tile> found;
   int count = 0;
   while (it.size() > 0) {
@@ -22,7 +22,7 @@ TEST_CASE("shuffled") {
 }
 
 TEST_CASE("starting") {
-  pool it;
+  depot it;
 
   CHECK(it.take(tile(11,11)));
   CHECK(it.size() == 90);

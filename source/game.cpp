@@ -5,7 +5,7 @@
 
 move pass { {0, 0}, -1 };
 
-pool::pool(long seed) {
+depot::depot(long seed) {
   auto rand = std::minstd_rand0();
   if (seed) rand.seed(seed);
   for (int i = 0; i <= 12; ++i)
@@ -14,13 +14,13 @@ pool::pool(long seed) {
   std::shuffle(tiles.begin(), tiles.end(), std::minstd_rand0());
 }
 
-tile pool::take() {
+tile depot::take() {
   tile t = tiles.back();
   tiles.pop_back();
   return t;
 }
 
-bool pool::take(tile t) {
+bool depot::take(tile t) {
   auto f = std::find(tiles.begin(), tiles.end(), t);
   if (f == tiles.end()) return false;
   auto last = tiles.back();
@@ -37,7 +37,7 @@ std::optional<move> board::doubled() const {
   return {};
 }
 
-void board::deal(pool& p) {
+void board::deal(depot& p) {
   for (auto& h : hands)
     for (int i = 0; i < 15; ++i)
       h.push_back(p.take());
