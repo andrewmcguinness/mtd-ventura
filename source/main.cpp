@@ -32,7 +32,7 @@ int main(int, char* []) {
     b.set_start(start);
 
     auto seed = start;
-    depot tiles(seed);
+    pool tiles(seed);
     tiles.take(tile{start,start});
   
     b.deal(tiles);
