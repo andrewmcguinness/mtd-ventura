@@ -2,6 +2,19 @@
 
 #include "game.h"
 
+struct scored_move {
+  move m;
+  int score;
+};
+
+move best(const std::vector<scored_move>& scored) {
+  auto cursor = scored.begin();
+  auto choice = *cursor;
+  while (++cursor < scored.end())
+    if (cursor->score > choice.score) choice = *cursor;
+  return choice.m;
+}
+
 class strat {
 public:
   strat(int p) : player(p) {}
@@ -18,6 +31,13 @@ public:
     std::vector<move> m1;
     find_moves(b, player, std::back_inserter(m1));
     if (m1.empty()) return pass;
-    return m1.back();
+    scored_move choice{pass, 0};
+    for (auto m : m1) {
+      int score = 1000 + m.play.score() + 1000*(m.to == player);
+      if (m.to)
+	score -= 50*((m.to+b.players-player)%b.players);
+      if (score > choice.score) choice = scored_move{m, score};
+    }
+    return choice.m;
   }
 };
