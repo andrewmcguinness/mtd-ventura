@@ -24,25 +24,39 @@ int main(int, char* []) {
   int player = 1;
 
   std::vector<int> points;
+  for (int pl = 1; pl <= num_players; ++pl) points.push_back(0);
 
-  board b(num_players);
+  for (int start = 12; start >= 0; --start) {
+    std::cout << "Game : " << start << "|" << start << "\n";
+    board b(num_players);
+    b.set_start(start);
 
-  pool tiles(1L);
+    auto seed = start;
+    pool tiles(seed);
+    tiles.take(tile{start,start});
   
-  b.deal(tiles);
-  std::cout << b << "\n\n";
-
-  while (b.winner() == 0) {
-    move m = (*strategies[player])(b);
-    if (m) {
-      if (make_move(b, player, m))
-	player = b.next_player(player);
-    } else {
-      if (!tiles.empty())
-	b.draw(player, tiles);
-      b.take_train(player);
-      player = b.next_player(player);
-    }    
+    b.deal(tiles);
     std::cout << b << "\n\n";
+
+    while (b.winner() == 0) {
+      move m = (*strategies[player])(b);
+      if (m) {
+	if (make_move(b, player, m))
+	  player = b.next_player(player);
+      } else {
+	if (!tiles.empty())
+	  b.draw(player, tiles);
+	b.take_train(player);
+	player = b.next_player(player);
+      }    
+      std::cout << b << "\n\n";
+    }
+    for (int pl = 1; pl <= num_players; ++pl) {
+      int tot = 0;
+      for (auto t : b.hand_for(pl))
+	tot += t.score();
+      points[pl] += tot;
+      std::cout << "Player " << pl << " +" << tot << " = " << points[pl] << "\n";
+    }
   }
 };

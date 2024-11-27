@@ -20,7 +20,7 @@ tile pool::take() {
   return t;
 }
 
-bool pool::take(const tile& t) {
+bool pool::take(tile t) {
   auto f = std::find(tiles.begin(), tiles.end(), t);
   if (f == tiles.end()) return false;
   auto last = tiles.back();

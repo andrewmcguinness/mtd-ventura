@@ -29,7 +29,7 @@ struct pool {
   int size() const { return tiles.size(); }
   int empty() const { return tiles.empty(); }
   tile take();
-  bool take(const tile& t);
+  bool take(tile t);
 private:
   std::vector<tile> tiles;
 };
@@ -69,6 +69,7 @@ struct board {
   }
   void deal(pool& p);
   void draw(int player, pool& p) { hand_for(player).push_back(p.take()); }
+  void set_start(int d) { start = d; for (auto& t : tracks) t.start = t.end = start; }
   std::optional<move> doubled() const;
   bool can_use(int player, int track) {
     if (track == 0) return true;
