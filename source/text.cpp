@@ -20,8 +20,11 @@ ostream& operator << (ostream& o, const track& tr) {
   o << (tr.train_on?" && ":"    ");
   int e = tr.start;
   for (tile t : tr.tiles) {
-    o << "[" << e << "|" << t.other(t.has(e)) << "]";
+    auto next = t.other(t.has(e));
+    o << "[" << e << "|" << next << "]";
+    e = next;
   }
+  o << "(" << tr.end << ")";
   return o;
 }
 

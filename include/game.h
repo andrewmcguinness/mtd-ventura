@@ -26,7 +26,8 @@ struct tile {
 
 struct pool {
   pool();
-  int size() const { return tiles.size(); };
+  int size() const { return tiles.size(); }
+  int empty() const { return tiles.empty(); }
   tile take();
   bool take(const tile& t);
   std::vector<tile> tiles;
@@ -48,6 +49,11 @@ struct track {
   std::vector<tile> tiles;
 };
 
+struct move {
+  tile play;
+  short to;
+};
+
 struct board {
   board(int np) : players(np), start(12) {
     tracks.push_back(track(start));
@@ -58,7 +64,7 @@ struct board {
     }
   }
 
-  std::optional<tile> doubled() const;
+  std::optional<move> doubled() const;
   bool can_use(int player, int track) {
     if (track == 0) return true;
     if (track == player) return true;
@@ -69,6 +75,11 @@ struct board {
   }
   void put_train(int player) {
     tracks[player].train_on = true;
+  }
+  int winner() const {
+    for (size_t pl = 1; pl <= hands.size(); ++pl)
+      if (hands[pl].empty()) return pl;
+    return 0;
   }
   int players;
   int start;

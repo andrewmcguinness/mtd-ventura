@@ -25,9 +25,11 @@ bool pool::take(const tile& t) {
   return true;
 }
 
-std::optional<tile> board::doubled() const {
-  for (const auto& tr : tracks)
-    if (tr.size() && tr.back().dub()) return tr.back();
+std::optional<move> board::doubled() const {
+  for (size_t tn = 0; tn < tracks.size(); ++tn) {
+    auto& tr = tracks[tn];
+    if (tr.size() && tr.back().dub()) return move(tr.back(), tn);
+  }
   return {};
 }
 
