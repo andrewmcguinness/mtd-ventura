@@ -25,11 +25,12 @@ struct tile {
 };
 
 struct pool {
-  pool();
+  pool(long seed = 0);
   int size() const { return tiles.size(); }
   int empty() const { return tiles.empty(); }
   tile take();
   bool take(const tile& t);
+private:
   std::vector<tile> tiles;
 };
 
@@ -52,7 +53,10 @@ struct track {
 struct move {
   tile play;
   short to;
+  operator bool() const { return to >= 0; }
 };
+
+extern move pass;
 
 struct board {
   board(int np) : players(np), start(12) {

@@ -3,7 +3,11 @@
 #include <algorithm>
 #include <game.h>
 
-pool::pool() {
+move pass { {0, 0}, -1 };
+
+pool::pool(long seed) {
+  auto rand = std::minstd_rand0();
+  if (seed) rand.seed(seed);
   for (int i = 0; i <= 12; ++i)
     for (int j = 0; j <= i; ++j)
       tiles.push_back(tile(i,j));
