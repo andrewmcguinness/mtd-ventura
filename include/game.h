@@ -63,7 +63,8 @@ struct board {
       put_train(i);
     }
   }
-
+  void deal(pool& p);
+  void draw(int player, pool& p) { hand_for(player).push_back(p.take()); }
   std::optional<move> doubled() const;
   bool can_use(int player, int track) {
     if (track == 0) return true;
@@ -78,12 +79,22 @@ struct board {
   }
   int winner() const {
     for (size_t pl = 1; pl <= hands.size(); ++pl)
-      if (hands[pl].empty()) return pl;
+      if (hand_for(pl).empty()) return pl;
     return 0;
+  }
+  int next_player(int last) const {
+    return (last % players) + 1;
+  }
+  std::vector<tile>& hand_for(int player) {
+    return hands[player - 1];
+  }
+  const std::vector<tile>& hand_for(int player) const {
+    return hands[player - 1];
   }
   int players;
   int start;
   std::vector<track> tracks;
+private:
   std::vector<std::vector<tile>> hands;
 };
 

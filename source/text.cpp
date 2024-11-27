@@ -34,7 +34,7 @@ ostream& operator << (ostream& o, const board& bd) {
   o << "  " << " " << bd.start << "-" << bd.tracks[0] << "\n";
   o << "\n";
   for (int p = 1 ; p <= bd.players; ++p)
-    o << "Player " << p << ": " << bd.hands[p-1] << "\n";
+    o << "Player " << p << ": " << bd.hand_for(p) << "\n";
   return o;
 }
 

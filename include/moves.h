@@ -10,7 +10,7 @@ template <typename inserter>
 int find_moves(const board& bd,
 	       int player,
 	       inserter out) {
-  const std::vector<tile>& hand = bd.hands[player-1];
+  const std::vector<tile>& hand = bd.hand_for(player);
   int count = 0;
   auto dub = bd.doubled();
   if (dub) {

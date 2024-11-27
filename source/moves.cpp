@@ -3,13 +3,13 @@
 
 // return true if ok to go to next player
 bool make_move(board& b, int player, move m) {
-  auto& hand = b.hands[player-1];
+  auto& hand = b.hand_for(player);
   auto dead = std::ranges::remove(hand, m.play);
   hand.erase(dead.begin());
   b.tracks[m.to].add(m.play);
   if (m.to == player) b.tracks[m.to].train_on = true;
 
-  return true; // fixme
+  return (!m.play.dub());
 }
 
 

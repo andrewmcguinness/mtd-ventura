@@ -9,7 +9,7 @@ int main(int, char* []) {
   pool p;
   board b(4);
   
-  deal(b, p);
+  b.deal(p);
   std::cout << b << "\n\n";
 
   int player = 1;
@@ -17,6 +17,7 @@ int main(int, char* []) {
     std::vector<move> m1;
     find_moves(b, player, std::back_inserter(m1));
 
+    std::cout << "Player " << player << ": ";
     for (auto m : m1) {
       std::cout << m << " ";
     }
@@ -24,13 +25,15 @@ int main(int, char* []) {
 
     if (m1.empty()) {
       if (!p.empty())
-	b.hands[player-1].push_back(p.take());
+	b.draw(player, p);
       b.take_train(player);
+      player = b.next_player(player);
     } else {
-      make_move(b, player, m1.back());
+      if (make_move(b, player, m1.back())) {
+	player = b.next_player(player);
+      }
     }
     
     std::cout << b << "\n\n";
-    player = (player % b.players) + 1;
   }
 };

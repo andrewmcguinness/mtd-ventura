@@ -33,8 +33,8 @@ std::optional<move> board::doubled() const {
   return {};
 }
 
-void deal(board& b, pool& p) {
-  for (auto& h : b.hands)
+void board::deal(pool& p) {
+  for (auto& h : hands)
     for (int i = 0; i < 15; ++i)
       h.push_back(p.take());
 }
