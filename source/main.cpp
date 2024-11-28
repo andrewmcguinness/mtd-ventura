@@ -36,8 +36,9 @@ int main(int, char* []) {
     b.deal(pool(seed));
     std::cout << b << "\n\n";
 
-    while (b.winner() == 0) {
+    while ((b.winner() == 0) && !b.stalled()) {
       move m = (*strategies[player])(b);
+      std::cout << "Player " << player << " " << m << "\n";
       if (m) {
 	if (make_move(b, player, m))
 	  player = b.next_player(player);

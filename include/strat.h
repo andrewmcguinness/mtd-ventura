@@ -7,14 +7,6 @@ struct scored_move {
   int score;
 };
 
-move best(const std::vector<scored_move>& scored) {
-  auto cursor = scored.begin();
-  auto choice = *cursor;
-  while (++cursor < scored.end())
-    if (cursor->score > choice.score) choice = *cursor;
-  return choice.m;
-}
-
 class strat {
 public:
   strat(int p) : player(p) {}

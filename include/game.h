@@ -1,6 +1,8 @@
 #pragma once
 
 #include <vector>
+#include <algorithm>
+#include <numeric>
 #include <optional>
 
 struct tile_pos {
@@ -59,7 +61,7 @@ struct move {
 extern move pass;
 
 struct board {
-  board(int np) : players(np), start(12) {
+  board(int np) : players(np), start(12), stall_count(0) {
     tracks.push_back(track(start));
     for (int i = 1; i <= players; ++i) {
       tracks.push_back(track(start));
@@ -67,9 +69,19 @@ struct board {
       put_train(i);
     }
   }
+  int progress() const {
+    return 100 +
+      std::transform_reduce(tracks.begin(), tracks.end(), 0,
+				 std::plus<int>(),
+				 ([](const auto& t)  {return t.size(); })) -
+      depot.size();
+  }
   void deal(const pool& p);
   void draw(int player) {
-    if (!depot.empty()) hand_for(player).push_back(depot.take());
+    if (depot.empty()) {
+      ++stall_count;
+    } else
+      hand_for(player).push_back(depot.take());
     take_train(player);
   }
   void set_start(int d) { start = d; for (auto& t : tracks) t.start = t.end = start; }
@@ -85,6 +97,16 @@ struct board {
   void put_train(int player) {
     tracks[player].train_on = true;
   }
+  bool make_move(int player, tile t, int track_no) {
+    stall_count = 0;
+    auto& hand = hand_for(player);
+    auto dead = std::ranges::remove(hand, t);
+    hand.erase(dead.begin());
+    tracks[track_no].add(t);
+    if (track_no == player) put_train(player);
+
+    return (!t.dub());
+  }
   int winner() const {
     for (size_t pl = 1; pl <= hands.size(); ++pl)
       if (hand_for(pl).empty()) return pl;
@@ -99,12 +121,16 @@ struct board {
   const std::vector<tile>& hand_for(int player) const {
     return hands[player - 1];
   }
+  bool stalled() const {
+    return stall_count >= players * 2;
+  }
   int players;
   int start;
   std::vector<track> tracks;
   pool depot;
 private:
   std::vector<std::vector<tile>> hands;
+  int stall_count;
 };
 
 void deal(board& b, pool& p);

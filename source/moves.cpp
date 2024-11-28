@@ -3,20 +3,15 @@
 
 // return true if ok to go to next player
 bool make_move(board& b, int player, move m) {
-  auto& hand = b.hand_for(player);
-  auto dead = std::ranges::remove(hand, m.play);
-  hand.erase(dead.begin());
-  b.tracks[m.to].add(m.play);
-  if (m.to == player) b.tracks[m.to].train_on = true;
-
-  return (!m.play.dub());
+  return b.make_move(player, m.play, m.to);
 }
 
-
 std::ostream& operator << (std::ostream& out, move m) {
-  if (m.to)
-    out << m.play << "->T" << m.to;
-  else
-    out << m.play << "->T*";
+  if (m) {
+    if (m.to)
+      out << m.play << "->T" << m.to;
+    else
+      out << m.play << "->T*";
+  } else out << "PASS";
   return out;
 }
