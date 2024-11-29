@@ -5,7 +5,8 @@ project(mtd CXX)
 set(SOURCES
 	source/game.cpp
 	source/text.cpp
-	source/moves.cpp)
+	source/moves.cpp
+	source/batch.cpp)
 
 set(TESTS test_shuffle
     test_tile)

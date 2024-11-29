@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <numeric>
 #include <optional>
+#include <memory>
+#include <iostream>
 
 struct tile_pos {
   bool m1;
@@ -69,6 +71,7 @@ struct board {
       put_train(i);
     }
   }
+
   int progress() const {
     return 100 +
       std::transform_reduce(tracks.begin(), tracks.end(), 0,
@@ -76,6 +79,7 @@ struct board {
 				 ([](const auto& t)  {return t.size(); })) -
       depot.size();
   }
+
   void deal(const pool& p);
   void draw(int player) {
     if (depot.empty()) {

@@ -2,6 +2,7 @@
 #include <random>
 #include <algorithm>
 #include <game.h>
+#include <iostream>
 
 move pass { {0, 0}, -1 };
 
@@ -11,7 +12,7 @@ pool::pool(long seed) {
   for (int i = 0; i <= 12; ++i)
     for (int j = 0; j <= i; ++j)
       tiles.push_back(tile(i,j));
-  std::shuffle(tiles.begin(), tiles.end(), std::minstd_rand0());
+  std::shuffle(tiles.begin(), tiles.end(), rand);
 }
 
 tile pool::take() {

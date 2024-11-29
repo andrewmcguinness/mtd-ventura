@@ -1,6 +1,7 @@
 #pragma once
 
 #include "game.h"
+#include "moves.h"
 
 struct scored_move {
   move m;
