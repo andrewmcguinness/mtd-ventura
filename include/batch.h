@@ -21,6 +21,8 @@ public:
   void run_games(int num_games);
 private:
   void run_game(int n);
+  int& score(int pl) { return points[pl-1]; }
+  move get_move(const board& bd, int pl) { return (*strats[pl-1])(bd); }
   int num_players;
   std::vector<std::unique_ptr<strat>> strats;
   int starting_player;

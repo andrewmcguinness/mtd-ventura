@@ -23,7 +23,7 @@ void batch::run_game(int n) {
     std::cout << b << "\n\n";
 
     while ((b.winner() == 0) && !b.stalled()) {
-      move m = (*strats[player-1])(b);
+      move m = get_move(b, player);
       std::cout << "Player " << player << " " << m << "\n";
       if (m) {
 	if (make_move(b, player, m))
@@ -38,7 +38,7 @@ void batch::run_game(int n) {
       int tot = 0;
       for (auto t : b.hand_for(pl))
 	tot += t.score();
-      points[pl-1] += tot;
+      score(pl) += tot;
       std::cout << "Player " << pl << " +" << tot << " = " << points[pl-1] << "\n";
     }
   }
