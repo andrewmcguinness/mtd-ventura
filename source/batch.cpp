@@ -24,7 +24,7 @@ void batch::run_game(int n) {
 
     while ((b.winner() == 0) && !b.stalled()) {
       move m = get_move(b, player);
-      std::cout << "Player " << player << " " << m << "\n";
+      //      std::cout << "Player " << player << " " << m << "\n";
       if (m) {
 	if (make_move(b, player, m))
 	  player = b.next_player(player);

@@ -6,10 +6,12 @@ set(SOURCES
 	source/game.cpp
 	source/text.cpp
 	source/moves.cpp
-	source/batch.cpp)
+	source/batch.cpp
+	source/strat.cpp)
 
 set(TESTS test_shuffle
-    test_tile)
+    test_tile
+    test_chain)
 
 set(CMAKE_CXX_STANDARD 20)
 

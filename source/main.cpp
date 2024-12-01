@@ -14,11 +14,11 @@ int hand_score(const std::vector<tile>& h) {
 }
 
 int main(int, char* []) {
-  int num_players = 4;
   std::vector<std::unique_ptr<strat>> strategies;
-  for (int p = 1; p <= num_players; ++p) {
-    strategies.push_back(std::make_unique<dumbest>(p));
-  }
+  strategies.push_back(std::make_unique<long_home>(1));
+  strategies.push_back(std::make_unique<dumbest>(2));
+  strategies.push_back(std::make_unique<long_home>(3));
+  strategies.push_back(std::make_unique<dumbest>(4));
 
   batch runs(std::move(strategies));
   runs.run_games(1000);
