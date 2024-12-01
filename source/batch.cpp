@@ -1,9 +1,17 @@
 #include "batch.h"
 
+std::vector<batch_result> batch::results() const {
+  std::vector<batch_result> out;
+  for (int p = 0; p < num_players; ++p) {
+    out.emplace_back(points[p], game_count, strats[p]->desc());
+  }
+  return out;
+}
 
 void batch::run_games(int num_games) {
   for (int n = 0; n < num_games; ++n) {
     std::cout << "Game " << n << "\n";
+    ++game_count;
     run_game(n);
   }
 }

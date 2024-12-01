@@ -9,15 +9,21 @@
 #include "game.h"
 #include "strat.h"
 
+struct batch_result {
+  int points;
+  int games;
+  std::string strategy;
+};
+
 class batch {
 public:
   batch(std::vector<std::unique_ptr<strat>>&& strategies)
     : num_players(strategies.size()), strats(std::move(strategies)),
-    starting_player(1)
+    starting_player(1), game_count(0)
   {
     for (int i = 0 ; i < num_players; ++i) points.push_back(0);
   }
-  const std::vector<int>& results() const { return points; }
+  std::vector<batch_result> results() const;
   void run_games(int num_games);
 private:
   void run_game(int n);
@@ -27,4 +33,5 @@ private:
   std::vector<std::unique_ptr<strat>> strats;
   int starting_player;
   std::vector<int> points;
+  int game_count;
 };

@@ -12,6 +12,7 @@ class strat {
 public:
   strat(int p) : player(p) {}
   virtual move operator ()(const board& b) = 0;
+  virtual std::string desc() const = 0;
   virtual ~strat() {}
 protected:
   int player;
@@ -31,6 +32,7 @@ move best(std::vector<move>::iterator begin, std::vector<move>::iterator end,
 class dumbest : public strat {
 public:
   dumbest(int pl) : strat(pl) {}
+  std::string desc() const { return "dumbest"; }
   move operator () (const board& b) {
     std::vector<move> m1;
     find_moves(b, player, std::back_inserter(m1));
@@ -53,5 +55,6 @@ int best_chain(tiles::iterator in, tiles::iterator in_end,
 class long_home : public strat {
 public:
   long_home(int pl) : strat(pl) {}
+  std::string desc() const { return "long_home"; }
   move operator () (const board& b);
 };
