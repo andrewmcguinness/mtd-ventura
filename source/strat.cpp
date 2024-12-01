@@ -20,6 +20,18 @@ int best_chain(tiles::iterator in, tiles::iterator in_end,
   return best;
 }
 
+move dumbest::operator () (const board& b) {
+  std::vector<move> legal;
+  find_moves(b, player, std::back_inserter(legal));
+  return best(legal.begin(), legal.end(),
+	      [&b, this](move m) {
+		int score = 1000 + m.play.score() + 1000*(m.to == player);
+		if (m.to)
+		  score -= 50*((m.to+b.players-player)%b.players);
+		return score;
+	      });
+}
+
 move long_home::operator () (const board& b) {
   std::vector<move> legal;
   find_moves(b, player, std::back_inserter(legal));
