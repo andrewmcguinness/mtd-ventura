@@ -18,8 +18,8 @@ int main(int, char* []) {
   std::vector<std::unique_ptr<strat>> strategies;
   strategies.push_back(std::make_unique<long_home>(1));
   strategies.push_back(std::make_unique<dumbest>(2));
-  strategies.push_back(std::make_unique<long_home>(3));
-  strategies.push_back(std::make_unique<dumbest>(4));
+  strategies.push_back(std::make_unique<preserve_home>(3, false));
+  strategies.push_back(std::make_unique<preserve_home>(4, true));
 
   batch runs(std::move(strategies));
   runs.run_games(iterations);

@@ -63,3 +63,47 @@ move long_home::operator () (const board& b) {
 		return m.play.score();
 	      });
 }
+
+move preserve_home::operator () (const board& b) {
+  std::vector<move> legal;
+  find_moves(b, player, std::back_inserter(legal));
+  if (legal.empty()) return pass;
+  if (legal.size() == 1) return legal[0];
+
+  auto hand = b.hand_for(player);
+  short train = player;
+  auto chain_length = best_chain(hand.begin(), hand.end(),
+				 b.tracks[player].end);
+  if (auto dd = b.doubled()) {
+    if (dd->to == player) {
+      auto pos = std::find_if(hand.begin(), hand.end(),
+			      [dd](auto t) { return t.has(dd->play.v1()); });
+      return move{*pos, train};
+    } else {
+      auto pos = std::find_if(hand.rbegin(), hand.rend(),
+			      [dd](auto t) { return t.has(dd->play.v1()); });
+      return move{*pos, dd->to};
+    }
+  } else {
+    for (int i = 0; i < b.players; ++i) {
+      // i=0 => track 0 (Mexican train)
+      // i>1 => player i+1 (mod)
+      auto rel = (prefer_common)?i:(b.players-i-1);
+      short track = rel?(((rel + player) % b.players)+1):0;
+      auto value = b.tracks[track].end;
+      auto pos = std::find_if(hand.begin() + chain_length, hand.end(),
+			      [value](auto t) { return t.has(value); });
+      if (pos != hand.end())
+	return move{*pos, track};
+    }
+
+    if (chain_length > 0) {
+      return move{hand[0], train};
+    }
+  }
+
+  return best(legal.begin(), legal.end(),
+	      [&b](move m) {
+		return m.play.score();
+	      });
+}

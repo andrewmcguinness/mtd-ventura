@@ -46,3 +46,14 @@ public:
   std::string desc() const { return "long_home"; }
   move operator () (const board& b);
 };
+
+class preserve_home : public strat {
+public:
+  preserve_home(int pl, bool mode) : strat(pl), prefer_common(mode) {}
+  std::string desc() const {
+    return prefer_common?"preserve_home_MX":"preserve_home_P";
+  }
+  move operator () (const board& b);
+private:
+  bool prefer_common;
+};
