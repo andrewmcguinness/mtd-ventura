@@ -16,8 +16,9 @@ int hand_score(const std::vector<tile>& h) {
 int main(int, char* []) {
   int iterations = 1000;
   std::vector<std::unique_ptr<strat>> strategies;
-  strategies.push_back(std::make_unique<long_home>(1));
-  strategies.push_back(std::make_unique<dumbest>(2));
+  //  strategies.push_back(std::make_unique<long_home>(1));
+  strategies.push_back(std::make_unique<preserve_home>(1, false));
+  strategies.push_back(std::make_unique<preserve_home>(2, true));
   strategies.push_back(std::make_unique<preserve_home>(3, false));
   strategies.push_back(std::make_unique<preserve_home>(4, true));
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include "game.h"
 #include "moves.h"
 
@@ -36,9 +37,31 @@ public:
   move operator () (const board& b);
 };
 
+struct chain_stats {
+  short length;
+  short doubles;
+  int points;
+  chain_stats operator +(chain_stats y) {
+    chain_stats z;
+    z.length = length + y.length;
+    z.doubles = doubles + y.doubles;
+    z.points = points + y.points;
+    return z;
+  }
+};
+
 using tiles = std::vector<tile>;
-int best_chain(tiles::iterator in, tiles::iterator in_end,
-	       int start_val);
+using chain_cmp = std::function<bool(chain_stats, chain_stats)>;
+struct longer_chain {
+  bool operator() (chain_stats x, chain_stats y) {
+    return x.length > y.length;
+  }
+};
+
+chain_stats best_chain(tiles::iterator in, tiles::iterator in_end,
+		       int start_val, chain_cmp cmp);
+chain_stats longest_chain(tiles::iterator in, tiles::iterator in_end,
+			 int start_val);
 
 class long_home : public strat {
 public:

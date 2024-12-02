@@ -1,23 +1,33 @@
 #include "game.h"
 #include "strat.h"
 
+bool better(chain_stats it, chain_stats than) {
+  return it.length > than.length;
+}
+
 /* returns the length of the longest chain, with that chain
  * formed at the beginning of the vector
  */
-int best_chain(tiles::iterator in, tiles::iterator in_end,
-	       int start_val) {
-  int best = 0;
+chain_stats best_chain(tiles::iterator in, tiles::iterator in_end,
+		       int start_val, chain_cmp cmp) {
+  chain_stats best{0,0,0};
   for (auto t = in; t != in_end; ++t) {
     if (auto match = t->has(start_val)) {
       if (t != in)
 	std::swap(*in, *t); // now candidate is 1st
-      auto rest = best_chain(in+1, in_end, in->other(match)) + 1;
-      if (rest <= best)
+      auto rest = best_chain(in+1, in_end, in->other(match), cmp) +
+	chain_stats{1, in->dub(), in->score()};
+      if (!cmp(rest, best))
 	std::swap(*in, *t); // swap back because it didn't improve
       else best = rest;
     }
   }
   return best;
+}
+
+chain_stats longest_chain(tiles::iterator in, tiles::iterator in_end,
+			  int start_val) {
+  return best_chain(in, in_end, start_val, longer_chain{});
 }
 
 move dumbest::operator () (const board& b) {
@@ -41,7 +51,8 @@ move long_home::operator () (const board& b) {
   auto hand = b.hand_for(player);
   short train = player;
   auto chain_length = best_chain(hand.begin(), hand.end(),
-				 b.tracks[player].end);
+				 b.tracks[player].end,
+				 longer_chain{}).length;
   if (auto dd = b.doubled()) {
     if (dd->to == player) {
       auto pos = std::find_if(hand.begin(), hand.end(),
@@ -73,7 +84,8 @@ move preserve_home::operator () (const board& b) {
   auto hand = b.hand_for(player);
   short train = player;
   auto chain_length = best_chain(hand.begin(), hand.end(),
-				 b.tracks[player].end);
+				 b.tracks[player].end,
+				 longer_chain{}).length;
   if (auto dd = b.doubled()) {
     if (dd->to == player) {
       auto pos = std::find_if(hand.begin(), hand.end(),
