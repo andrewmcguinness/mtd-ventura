@@ -72,11 +72,21 @@ public:
 
 class preserve_home : public strat {
 public:
-  preserve_home(int pl, bool mode) : strat(pl), prefer_common(mode) {}
+  preserve_home(int pl, bool mode)
+    : strat(pl), prefer_common(mode), cmp(longer_chain{}),
+      text(prefer_common?"preserve_home_MX":"preserve_home_P") {}
+  static std::unique_ptr<preserve_home> fat_chain(int pl, bool mode) {
+    auto it = std::make_unique<preserve_home>(pl, mode);
+    it->cmp = [](chain_stats x, chain_stats y) { return x.points > y.points; };
+    it->text = std::string{"fat_chain_"} + (mode?"MX":"P");
+    return it;
+  }
   std::string desc() const {
-    return prefer_common?"preserve_home_MX":"preserve_home_P";
+    return text;
   }
   move operator () (const board& b);
 private:
   bool prefer_common;
+  chain_cmp cmp;
+  std::string text;
 };
