@@ -17,10 +17,10 @@ int main(int, char* []) {
   int iterations = 1000;
   std::vector<std::unique_ptr<strat>> strategies;
   //  strategies.push_back(std::make_unique<long_home>(1));
-  strategies.push_back(preserve_home::fat_chain(1, true));
+  strategies.push_back(std::make_unique<preserve_home>(1, true, "quick chains", quicker_chain{}));
   strategies.push_back(std::make_unique<preserve_home>(2, true));
   strategies.push_back(preserve_home::fat_chain(3, true));
-  strategies.push_back(std::make_unique<preserve_home>(4, true));
+  strategies.push_back(std::make_unique<preserve_home>(4, true, "quick chains", quicker_chain{}));
 
   batch runs(std::move(strategies));
   runs.run_games(iterations);

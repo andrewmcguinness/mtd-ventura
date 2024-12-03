@@ -54,14 +54,24 @@ using tiles = std::vector<tile>;
 using chain_cmp = std::function<bool(chain_stats, chain_stats)>;
 struct longer_chain {
   bool operator() (chain_stats x, chain_stats y) {
-    return x.length > y.length;
+    return ((x.length == y.length) && (x.points > y.points)) ||
+      (x.length > y.length);
+  }
+};
+
+struct quicker_chain {
+  bool operator() (chain_stats x, chain_stats y) {
+    int x_turns = x.length - x.doubles;
+    int y_turns = y.length - y.doubles;
+    return ((x_turns == y_turns) && (x.points > y.points)) ||
+      (x_turns > y_turns);
   }
 };
 
 chain_stats best_chain(tiles::iterator in, tiles::iterator in_end,
 		       int start_val, chain_cmp cmp);
 chain_stats longest_chain(tiles::iterator in, tiles::iterator in_end,
-			 int start_val);
+			  int start_val);
 
 class long_home : public strat {
 public:
@@ -75,6 +85,10 @@ public:
   preserve_home(int pl, bool mode)
     : strat(pl), prefer_common(mode), cmp(longer_chain{}),
       text(prefer_common?"preserve_home_MX":"preserve_home_P") {}
+  preserve_home(int pl, bool mode, std::string description,
+		chain_cmp comparator)
+    : strat(pl), prefer_common(mode), cmp(comparator),
+      text(description) {}
   static std::unique_ptr<preserve_home> fat_chain(int pl, bool mode) {
     auto it = std::make_unique<preserve_home>(pl, mode);
     it->cmp = [](chain_stats x, chain_stats y) { return x.points > y.points; };

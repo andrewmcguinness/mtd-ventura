@@ -37,7 +37,6 @@ void batch::run_game(int n) {
 	  "\n" << *err << "\n";
 	return;
       }
-      //      std::cout << "Player " << player << " " << m << "\n";
       if (m) {
 	if (make_move(b, player, m))
 	  player = b.next_player(player);

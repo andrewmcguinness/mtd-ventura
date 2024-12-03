@@ -12,6 +12,7 @@ chain_stats best_chain(tiles::iterator in, tiles::iterator in_end,
 		       int start_val, chain_cmp cmp) {
   chain_stats best{0,0,0};
   std::vector<tile> saved_chain;
+
   for (auto t = in; t != in_end; ++t) {
     if (auto match = t->has(start_val)) {
       if (t != in)
