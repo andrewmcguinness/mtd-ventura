@@ -2,10 +2,14 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <optional>
+#include <string>
 #include "game.h"
 #include "text.h"
 
 std::ostream& operator << (std::ostream& out, move m);
+
+std::optional<std::string> check_move(board& b, int player, move m);
 
 template <typename inserter>
 int find_moves(const board& bd,

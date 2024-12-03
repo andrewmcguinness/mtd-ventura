@@ -41,7 +41,7 @@ struct chain_stats {
   short length;
   short doubles;
   int points;
-  chain_stats operator +(chain_stats y) {
+  chain_stats operator +(chain_stats y) const {
     chain_stats z;
     z.length = length + y.length;
     z.doubles = doubles + y.doubles;

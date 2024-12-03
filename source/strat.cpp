@@ -11,15 +11,26 @@ bool better(chain_stats it, chain_stats than) {
 chain_stats best_chain(tiles::iterator in, tiles::iterator in_end,
 		       int start_val, chain_cmp cmp) {
   chain_stats best{0,0,0};
+  std::vector<tile> saved_chain;
+  auto len = in_end - in;
   for (auto t = in; t != in_end; ++t) {
     if (auto match = t->has(start_val)) {
+      std::cout << "deb " << len << " : " << start_val << " - " << *t << "\n";
       if (t != in)
-	std::swap(*in, *t); // now candidate is 1st
+	std::iter_swap(in, t); // now candidate is 1st,
       auto rest = best_chain(in+1, in_end, in->other(match), cmp) +
 	chain_stats{1, in->dub(), in->score()};
-      if (!cmp(rest, best))
-	std::swap(*in, *t); // swap back because it didn't improve
-      else best = rest;
+      if (cmp(rest, best)) {
+	std::cout << len << " good " << *in << "\n";
+	best = rest;
+	saved_chain.assign(in, in_end);
+      } else {
+	if (best.length > 0)
+	  std::copy(saved_chain.begin(), saved_chain.end(), in);
+	std::cout << len << " bad  " << *in << "\n";
+      }
+      // at this point *in is right, and 
+      // and either it is right, or saved_chain is right and dirty is true
     }
   }
   return best;
@@ -102,15 +113,23 @@ move preserve_home::operator () (const board& b) {
       // i>1 => player i+1 (mod)
       auto rel = (prefer_common)?i:(b.players-i-1);
       short track = rel?(((rel + player) % b.players)+1):0;
-      auto value = b.tracks[track].end;
-      auto pos = std::find_if(hand.begin() + chain_length, hand.end(),
-			      [value](auto t) { return t.has(value); });
-      if (pos != hand.end())
-	return move{*pos, track};
+      if ((track == 0) || (!b.tracks[track].train_on)) {
+	auto value = b.tracks[track].end;
+	auto pos = std::find_if(hand.begin() + chain_length, hand.end(),
+				[value](auto t) { return t.has(value); });
+	if (pos != hand.end())
+	  return move{*pos, track};
+      }
     }
 
     if (chain_length > 0) {
-      return move{hand[0], train};
+      if (hand[0].has(b.tracks[train].end))
+	return move{hand[0], train};
+      else {
+	std::cout << "ERROR chain " << chain_length << " starts with "
+		  << hand[0] << "\n";
+	return move{hand[0], train};
+      }
     }
   }
 

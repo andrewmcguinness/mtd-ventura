@@ -32,6 +32,11 @@ void batch::run_game(int n) {
 
     while ((b.winner() == 0) && !b.stalled()) {
       move m = get_move(b, player);
+      if (auto err = check_move(b, player, m)) {
+	std::cout << "Player " << player << " ERROR\n" << b << "\n" << m <<
+	  "\n" << *err << "\n";
+	return;
+      }
       //      std::cout << "Player " << player << " " << m << "\n";
       if (m) {
 	if (make_move(b, player, m))

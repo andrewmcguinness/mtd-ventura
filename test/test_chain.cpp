@@ -30,3 +30,39 @@ TEST_CASE("mid chain") {
   CHECK(it[1] == tile{8,7});
   CHECK(it[2].has(7));
 }
+
+TEST_CASE("error 1") {
+  std::cout << "error 1\n";
+  tiles it = { {11,3}, {12,11}, {4,0}, {6,0}, {5,3}, {11,11}, {12,8}, {11,5}, {12,5}, {11,10}, {6,1}, {1,0}, {8,6}, {10,2}, {7,0} };
+  auto chain = longest_chain(it.begin(), it.end(), 12);
+  CHECK(chain.length == 10);
+  CHECK(it[0] == tile{12,11});
+  CHECK(it[1] == tile{11,11});
+  CHECK(it[2] == tile{11,3});
+  CHECK(it[3] == tile{5,3});
+  /*
+  int link = 12;
+  for (auto i = 0; i < chain.length; ++i) {
+    auto t = it[i];
+    auto match = t.has(link);
+    auto old_link = link;
+    CHECK((bool)match == true);
+    link = t.other(match);
+    if (t.dub()) {
+      CHECK(old_link == link);
+    } else {
+      CHECK(old_link != link);
+      CHECK(t.has(link));
+    }
+  }
+  */
+}
+
+TEST_CASE("error 1b") {
+  std::cout << "error 1b\n";
+  tiles it = { {12,11}, {4,0}, {6,0}, {5,3}, {11,11}, {11,3}, {11,5}, {12,5}, {11,10}, {6,1}, {1,0}, {8,6}, {10,2}, {7,0} };
+  auto chain = longest_chain(it.begin(), it.end(), 8);
+  CHECK(chain.length == 4);
+  CHECK(it[0] == tile{8,6});
+  CHECK(it[1] == tile{6,0});
+}
