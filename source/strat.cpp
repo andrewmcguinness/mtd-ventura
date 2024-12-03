@@ -12,22 +12,18 @@ chain_stats best_chain(tiles::iterator in, tiles::iterator in_end,
 		       int start_val, chain_cmp cmp) {
   chain_stats best{0,0,0};
   std::vector<tile> saved_chain;
-  auto len = in_end - in;
   for (auto t = in; t != in_end; ++t) {
     if (auto match = t->has(start_val)) {
-      std::cout << "deb " << len << " : " << start_val << " - " << *t << "\n";
       if (t != in)
 	std::iter_swap(in, t); // now candidate is 1st,
       auto rest = best_chain(in+1, in_end, in->other(match), cmp) +
 	chain_stats{1, in->dub(), in->score()};
       if (cmp(rest, best)) {
-	std::cout << len << " good " << *in << "\n";
 	best = rest;
 	saved_chain.assign(in, in_end);
       } else {
 	if (best.length > 0)
 	  std::copy(saved_chain.begin(), saved_chain.end(), in);
-	std::cout << len << " bad  " << *in << "\n";
       }
       // at this point *in is right, and 
       // and either it is right, or saved_chain is right and dirty is true
