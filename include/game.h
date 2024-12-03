@@ -60,6 +60,12 @@ struct move {
   operator bool() const { return to >= 0; }
 };
 
+struct past_move {
+  move m;
+  short player;
+  bool double_included;
+};
+
 extern move pass;
 
 struct board {
@@ -101,15 +107,20 @@ struct board {
   void put_train(int player) {
     tracks[player].train_on = true;
   }
-  bool make_move(int player, tile t, int track_no) {
+  bool make_move(int player, tile t, short track_no) {
     stall_count = 0;
     auto& hand = hand_for(player);
     auto dead = std::ranges::remove(hand, t);
     hand.erase(dead.begin());
     tracks[track_no].add(t);
     if (track_no == player) put_train(player);
-
-    return (!t.dub());
+    if (t.dub()) {
+      last_move_double = true;
+    } else {
+      history.emplace_back(move{t, track_no}, player, last_move_double);
+      last_move_double = false;
+    }
+    return !last_move_double;
   }
   int winner() const {
     for (size_t pl = 1; pl <= hands.size(); ++pl)
@@ -132,9 +143,11 @@ struct board {
   int start;
   std::vector<track> tracks;
   pool depot;
+  std::vector<past_move> history;
 private:
   std::vector<std::vector<tile>> hands;
   int stall_count;
+  bool last_move_double;
 };
 
 void deal(board& b, pool& p);

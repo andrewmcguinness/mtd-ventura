@@ -83,6 +83,31 @@ move long_home::operator () (const board& b) {
 	      });
 }
 
+move move_on_other(const board& b, short player,
+		   std::vector<tile>::iterator begin,
+		   std::vector<tile>::iterator end,
+		   int chain_length,
+		   bool prefer_common) {
+  for (int i = 0; i < b.players; ++i) {
+    // i=0 => track 0 (Mexican train)
+    // i>1 => player i+1 (mod)
+    auto rel = (prefer_common)?i:(b.players-i-1);
+    short track = rel?(((rel + player) % b.players)+1):0;
+    if ((track == 0) || (!b.tracks[track].train_on)) {
+      auto value = b.tracks[track].end;
+      auto pos = std::find_if(begin + chain_length, end,
+			      [value](auto t) { return t.has(value); });
+      if (pos != end)
+	return move{*pos, track};
+    }
+  }
+  return pass;
+}
+
+
+// the idea of this strategy is to maintain as many tiles as
+// possible to play on own track, while playing remaining tiles on
+// any other available tracks whenever possible.
 move preserve_home::operator () (const board& b) {
   std::vector<move> legal;
   find_moves(b, player, std::back_inserter(legal));
@@ -105,20 +130,11 @@ move preserve_home::operator () (const board& b) {
       return move{*pos, dd->to};
     }
   } else {
-    for (int i = 0; i < b.players; ++i) {
-      // i=0 => track 0 (Mexican train)
-      // i>1 => player i+1 (mod)
-      auto rel = (prefer_common)?i:(b.players-i-1);
-      short track = rel?(((rel + player) % b.players)+1):0;
-      if ((track == 0) || (!b.tracks[track].train_on)) {
-	auto value = b.tracks[track].end;
-	auto pos = std::find_if(hand.begin() + chain_length, hand.end(),
-				[value](auto t) { return t.has(value); });
-	if (pos != hand.end())
-	  return move{*pos, track};
-      }
-    }
-
+    auto best = move_on_other(b, player,
+			      hand.begin(), hand.end(), chain_length,
+			      prefer_common);
+    if (best) return best;
+    
     if (chain_length > 0) {
       if (hand[0].has(b.tracks[train].end))
 	return move{hand[0], train};

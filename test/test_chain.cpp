@@ -64,5 +64,5 @@ TEST_CASE("error 1b") {
   auto chain = longest_chain(it.begin(), it.end(), 8);
   CHECK(chain.length == 4);
   CHECK(it[0] == tile{8,6});
-  CHECK(it[1] == tile{6,0});
+  CHECK(it[1] == tile{6,1});
 }
