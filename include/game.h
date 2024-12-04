@@ -69,7 +69,10 @@ struct past_move {
 extern move pass;
 
 struct board {
-  board(int np) : players(np), start(12), stall_count(0) {
+  board(int np)
+    : players(np), start(12), stall_count{0}, move_count{0},
+      last_move_double{false}
+  {
     tracks.push_back(track(start));
     for (int i = 1; i <= players; ++i) {
       tracks.push_back(track(start));
@@ -88,6 +91,7 @@ struct board {
 
   void deal(const pool& p);
   void draw(int player) {
+    ++move_count;
     if (depot.empty()) {
       ++stall_count;
     } else
@@ -108,6 +112,7 @@ struct board {
     tracks[player].train_on = true;
   }
   bool make_move(int player, tile t, short track_no) {
+    ++move_count;
     stall_count = 0;
     auto& hand = hand_for(player);
     auto dead = std::ranges::remove(hand, t);
@@ -139,6 +144,7 @@ struct board {
   bool stalled() const {
     return stall_count >= players * 2;
   }
+  int turns() const { return move_count; }
   int players;
   int start;
   std::vector<track> tracks;
@@ -147,6 +153,7 @@ struct board {
 private:
   std::vector<std::vector<tile>> hands;
   int stall_count;
+  int move_count;
   bool last_move_double;
 };
 

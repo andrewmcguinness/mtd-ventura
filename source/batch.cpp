@@ -1,11 +1,7 @@
 #include "batch.h"
 
 std::vector<batch_result> batch::results() const {
-  std::vector<batch_result> out;
-  for (int p = 0; p < num_players; ++p) {
-    out.emplace_back(points[p], game_count, strats[p]->desc());
-  }
-  return out;
+  return points;
 }
 
 void batch::run_games(int num_games) {
@@ -17,6 +13,7 @@ void batch::run_games(int num_games) {
 }
 
 void batch::run_game(int n) {
+  std::vector<int> game_points(num_players);
   int player = starting_player;
   starting_player = 1 + (starting_player % num_players);
 
@@ -45,14 +42,19 @@ void batch::run_game(int n) {
 	player = b.next_player(player);
       }    
     }
+    move_count += b.turns();
     std::cout << b << "\n\n";
     for (int pl = 1; pl <= num_players; ++pl) {
       int tot = 0;
       for (auto t : b.hand_for(pl))
 	tot += t.score();
-      score(pl) += tot;
-      std::cout << "Player " << pl << " +" << tot << " = " << points[pl-1] << "\n";
+      score(pl).points += tot;
+      game_points[pl-1] += tot;
+      std::cout << "Player " << pl << " +" << tot << " = " << points[pl-1].points << "\n";
     }
   }
+  auto game_winner = std::min_element(game_points.begin(), game_points.end())
+    - game_points.begin();
+  points[game_winner].games++;
 }
 
