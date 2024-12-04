@@ -15,7 +15,7 @@ set(TESTS test_shuffle
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_compile_options(-Wall -O2 -Wextra -Wnon-virtual-dtor -pedantic -Werror)
+add_compile_options(-Wall -O3 -Wextra -Wnon-virtual-dtor -pedantic -Werror)
 
 include_directories(
 	./include)

@@ -61,10 +61,16 @@ struct longer_chain {
 
 struct quicker_chain {
   bool operator() (chain_stats x, chain_stats y) {
-    int x_turns = x.length - x.doubles;
-    int y_turns = y.length - y.doubles;
+    int x_turns = x.length + x.doubles;
+    int y_turns = y.length + y.doubles;
     return ((x_turns == y_turns) && (x.points > y.points)) ||
       (x_turns > y_turns);
+  }
+};
+
+struct fatter_chain {
+  bool operator() (chain_stats x, chain_stats y) {
+    return (x.points > y.points);
   }
 };
 
@@ -80,27 +86,75 @@ public:
   move operator () (const board& b);
 };
 
+move move_on_other(const board& b, short player,
+		   std::vector<tile>::iterator begin,
+		   std::vector<tile>::iterator end,
+		   int chain_length,
+		   bool prefer_common);
+
+// the idea of this strategy is to maintain as many tiles as
+// possible to play on own track, while playing remaining tiles on
+// any other available tracks whenever possible.
+template<bool prefer_mx, typename cmp>
 class preserve_home : public strat {
 public:
-  preserve_home(int pl, bool mode)
-    : strat(pl), prefer_common(mode), cmp(longer_chain{}),
-      text(prefer_common?"preserve_home_MX":"preserve_home_P") {}
-  preserve_home(int pl, bool mode, std::string description,
-		chain_cmp comparator)
-    : strat(pl), prefer_common(mode), cmp(comparator),
-      text(description) {}
-  static std::unique_ptr<preserve_home> fat_chain(int pl, bool mode) {
+  preserve_home(int pl, std::string description)
+    : strat(pl), text(description) {}
+  /*
+    static std::unique_ptr<preserve_home> fat_chain(int pl, bool mode) {
     auto it = std::make_unique<preserve_home>(pl, mode);
     it->cmp = [](chain_stats x, chain_stats y) { return x.points > y.points; };
     it->text = std::string{"fat_chain_"} + (mode?"MX":"P");
     return it;
   }
+  */
   std::string desc() const {
     return text;
   }
-  move operator () (const board& b);
+  move operator () (const board& b) {
+    std::vector<move> legal;
+    find_moves(b, player, std::back_inserter(legal));
+    if (legal.empty()) return pass;
+    if (legal.size() == 1) return legal[0];
+
+    auto hand = b.hand_for(player);
+    short train = player;
+    auto chain_length = best_chain(hand.begin(), hand.end(),
+				   b.tracks[player].end,
+				   comparator).length;
+    if (auto dd = b.doubled()) {
+      if (dd->to == player) {
+	auto pos = std::find_if(hand.begin(), hand.end(),
+				[dd](auto t) { return t.has(dd->play.v1()); });
+	return move{*pos, train};
+      } else {
+	auto pos = std::find_if(hand.rbegin(), hand.rend(),
+				[dd](auto t) { return t.has(dd->play.v1()); });
+	return move{*pos, dd->to};
+      }
+    } else {
+      auto best = move_on_other(b, player,
+				hand.begin(), hand.end(), chain_length,
+				prefer_mx);
+      if (best) return best;
+    
+      if (chain_length > 0) {
+	if (hand[0].has(b.tracks[train].end))
+	  return move{hand[0], train};
+	else {
+	  std::cout << "ERROR chain " << chain_length << " starts with "
+		    << hand[0] << "\n";
+	  return move{hand[0], train};
+	}
+      }
+    }
+
+    return best(legal.begin(), legal.end(),
+		[&b](move m) {
+		  return m.play.score();
+		});
+  }
 private:
-  bool prefer_common;
-  chain_cmp cmp;
+  cmp comparator;
   std::string text;
 };
