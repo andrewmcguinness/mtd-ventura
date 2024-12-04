@@ -51,7 +51,7 @@ struct chain_stats {
 };
 
 using tiles = std::vector<tile>;
-using chain_cmp = std::function<bool(chain_stats, chain_stats)>;
+
 struct longer_chain {
   bool operator() (chain_stats x, chain_stats y) {
     return ((x.length == y.length) && (x.points > y.points)) ||
@@ -74,10 +74,34 @@ struct fatter_chain {
   }
 };
 
+/* returns the length of the longest chain, with that chain
+ * formed at the beginning of the vector
+ */
+template<typename comparator>
 chain_stats best_chain(tiles::iterator in, tiles::iterator in_end,
-		       int start_val, chain_cmp cmp);
-chain_stats longest_chain(tiles::iterator in, tiles::iterator in_end,
-			  int start_val);
+		       int start_val) {
+  chain_stats best{0,0,0};
+  std::vector<tile> saved_chain;
+
+  for (auto t = in; t != in_end; ++t) {
+    if (auto match = t->has(start_val)) {
+      if (t != in)
+	std::iter_swap(in, t); // now candidate is 1st,
+      auto rest = best_chain<comparator>(in+1, in_end, in->other(match)) +
+	chain_stats{1, in->dub(), in->score()};
+      if (comparator{}(rest, best)) {
+	best = rest;
+	saved_chain.assign(in, in_end);
+      } else {
+	if (best.length > 0)
+	  std::copy(saved_chain.begin(), saved_chain.end(), in);
+      }
+      // at this point *in is right, and 
+      // and either it is right, or saved_chain is right and dirty is true
+    }
+  }
+  return best;
+}
 
 class long_home : public strat {
 public:
@@ -119,9 +143,8 @@ public:
 
     auto hand = b.hand_for(player);
     short train = player;
-    auto chain_length = best_chain(hand.begin(), hand.end(),
-				   b.tracks[player].end,
-				   comparator).length;
+    auto chain_length = best_chain<cmp>(hand.begin(), hand.end(),
+					b.tracks[player].end).length;
     if (auto dd = b.doubled()) {
       if (dd->to == player) {
 	auto pos = std::find_if(hand.begin(), hand.end(),

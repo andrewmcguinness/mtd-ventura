@@ -9,14 +9,14 @@
 TEST_CASE("no chain") {
   tiles it = { {3,2}, {4,3}, {5,4}, {5,3}, {4,2}, {5,2}, {6,2}, {6,3}, {6,5} };
 
-  auto len = longest_chain(it.begin(), it.end(), 9).length;
+  auto len = best_chain<longer_chain>(it.begin(), it.end(), 9).length;
   CHECK(len == 0);
 }
 
 TEST_CASE("min chain") {
   tiles it = { {3,2}, {4,3}, {5,4}, {5,3}, {4,2}, {5,2}, {9,8}, {6,3}, {6,5} };
 
-  auto len = longest_chain(it.begin(), it.end(), 9).length;
+  auto len = best_chain<longer_chain>(it.begin(), it.end(), 9).length;
   CHECK(len == 1);
   CHECK(it[0] == tile{9,8});
 }
@@ -24,7 +24,7 @@ TEST_CASE("min chain") {
 TEST_CASE("mid chain") {
   tiles it = { {3,2}, {4,3}, {8,7}, {5,3}, {4,2}, {5,2}, {9,8}, {7,1}, {11,7} };
 
-  auto len = longest_chain(it.begin(), it.end(), 9).length;
+  auto len = best_chain<longer_chain>(it.begin(), it.end(), 9).length;
   CHECK(len == 3);
   CHECK(it[0] == tile{9,8});
   CHECK(it[1] == tile{8,7});
@@ -34,7 +34,7 @@ TEST_CASE("mid chain") {
 TEST_CASE("error 1") {
   std::cout << "error 1\n";
   tiles it = { {11,3}, {12,11}, {4,0}, {6,0}, {5,3}, {11,11}, {12,8}, {11,5}, {12,5}, {11,10}, {6,1}, {1,0}, {8,6}, {10,2}, {7,0} };
-  auto chain = longest_chain(it.begin(), it.end(), 12);
+  auto chain = best_chain<longer_chain>(it.begin(), it.end(), 12);
   CHECK(chain.length == 10);
   CHECK(it[0] == tile{12,11});
   CHECK(it[1] == tile{11,11});
@@ -61,7 +61,7 @@ TEST_CASE("error 1") {
 TEST_CASE("error 1b") {
   std::cout << "error 1b\n";
   tiles it = { {12,11}, {4,0}, {6,0}, {5,3}, {11,11}, {11,3}, {11,5}, {12,5}, {11,10}, {6,1}, {1,0}, {8,6}, {10,2}, {7,0} };
-  auto chain = longest_chain(it.begin(), it.end(), 8);
+  auto chain = best_chain<longer_chain>(it.begin(), it.end(), 8);
   CHECK(chain.length == 4);
   CHECK(it[0] == tile{8,6});
   CHECK(it[1] == tile{6,1});

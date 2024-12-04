@@ -5,39 +5,6 @@ bool better(chain_stats it, chain_stats than) {
   return it.length > than.length;
 }
 
-/* returns the length of the longest chain, with that chain
- * formed at the beginning of the vector
- */
-chain_stats best_chain(tiles::iterator in, tiles::iterator in_end,
-		       int start_val, chain_cmp cmp) {
-  chain_stats best{0,0,0};
-  std::vector<tile> saved_chain;
-
-  for (auto t = in; t != in_end; ++t) {
-    if (auto match = t->has(start_val)) {
-      if (t != in)
-	std::iter_swap(in, t); // now candidate is 1st,
-      auto rest = best_chain(in+1, in_end, in->other(match), cmp) +
-	chain_stats{1, in->dub(), in->score()};
-      if (cmp(rest, best)) {
-	best = rest;
-	saved_chain.assign(in, in_end);
-      } else {
-	if (best.length > 0)
-	  std::copy(saved_chain.begin(), saved_chain.end(), in);
-      }
-      // at this point *in is right, and 
-      // and either it is right, or saved_chain is right and dirty is true
-    }
-  }
-  return best;
-}
-
-chain_stats longest_chain(tiles::iterator in, tiles::iterator in_end,
-			  int start_val) {
-  return best_chain(in, in_end, start_val, longer_chain{});
-}
-
 move dumbest::operator () (const board& b) {
   std::vector<move> legal;
   find_moves(b, player, std::back_inserter(legal));
@@ -58,9 +25,8 @@ move long_home::operator () (const board& b) {
 
   auto hand = b.hand_for(player);
   short train = player;
-  auto chain_length = best_chain(hand.begin(), hand.end(),
-				 b.tracks[player].end,
-				 longer_chain{}).length;
+  auto chain_length = best_chain<longer_chain>(hand.begin(), hand.end(),
+					       b.tracks[player].end).length;
   if (auto dd = b.doubled()) {
     if (dd->to == player) {
       auto pos = std::find_if(hand.begin(), hand.end(),
