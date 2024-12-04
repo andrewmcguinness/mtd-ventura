@@ -48,24 +48,3 @@ move long_home::operator () (const board& b) {
 		return m.play.score();
 	      });
 }
-
-move move_on_other(const board& b, short player,
-		   std::vector<tile>::iterator begin,
-		   std::vector<tile>::iterator end,
-		   int chain_length,
-		   bool prefer_common) {
-  for (int i = 0; i < b.players; ++i) {
-    // i=0 => track 0 (Mexican train)
-    // i>1 => player i+1 (mod)
-    auto rel = (prefer_common)?i:(b.players-i-1);
-    short track = rel?(((rel + player) % b.players)+1):0;
-    if ((track == 0) || (!b.tracks[track].train_on)) {
-      auto value = b.tracks[track].end;
-      auto pos = std::find_if(begin + chain_length, end,
-			      [value](auto t) { return t.has(value); });
-      if (pos != end)
-	return move{*pos, track};
-    }
-  }
-  return pass;
-}

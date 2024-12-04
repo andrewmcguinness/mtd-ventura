@@ -19,7 +19,7 @@ int main(int, char* []) {
   strategies.push_back(std::make_unique<preserve_home<true, quicker_chain>>(1, "quick chains"));
   strategies.push_back(std::make_unique<preserve_home<true, longer_chain>>(2, "long chains"));
   strategies.push_back(std::make_unique<preserve_home<true, fatter_chain>>(3, "fat chains"));
-  strategies.push_back(std::make_unique<preserve_home<true, quicker_chain>>(4, "quick chains"));
+  strategies.push_back(std::make_unique<preserve_2<true, quicker_chain>>(4, "quick chains, highest first"));
 
   batch runs(std::move(strategies));
   runs.run_games(iterations);

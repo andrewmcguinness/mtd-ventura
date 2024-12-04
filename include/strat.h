@@ -110,11 +110,51 @@ public:
   move operator () (const board& b);
 };
 
-move move_on_other(const board& b, short player,
-		   std::vector<tile>::iterator begin,
-		   std::vector<tile>::iterator end,
-		   int chain_length,
-		   bool prefer_common);
+template<bool prefer_common>
+move move_on_other_simple(const board& b, short player,
+			  std::vector<tile>::iterator begin,
+			  std::vector<tile>::iterator end,
+			  int chain_length)  {
+  for (int i = 0; i < b.players; ++i) {
+    // i=0 => track 0 (Mexican train)
+    // i>1 => player i+1 (mod)
+    auto rel = (prefer_common)?i:(b.players-i-1);
+    short track = rel?(((rel + player) % b.players)+1):0;
+    if ((track == 0) || (!b.tracks[track].train_on)) {
+      auto value = b.tracks[track].end;
+      auto pos = std::find_if(begin + chain_length, end,
+			      [value](auto t) { return t.has(value); });
+      if (pos != end)
+	return move{*pos, track};
+    }
+  }
+  return pass;
+}
+
+template<bool prefer_common>
+move move_other_highest(const board& b, short player,
+			std::vector<tile>::iterator begin,
+			std::vector<tile>::iterator end,
+			int chain_length)  {
+  for (int i = 0; i < b.players; ++i) {
+    // i=0 => track 0 (Mexican train)
+    // i>1 => player i+1 (mod)
+    auto rel = (prefer_common)?i:(b.players-i-1);
+    short track = rel?(((rel + player) % b.players)+1):0;
+    if ((track == 0) || (!b.tracks[track].train_on)) {
+      auto value = b.tracks[track].end;
+      auto non_chain = begin + chain_length;
+      auto pos = std::partition(non_chain, end,
+				[value](auto t) { return t.has(value); });
+      if (pos != non_chain) {
+	auto best = std::max_element(non_chain, pos,
+				     [](tile x, tile y) { return x.score() < y.score(); });
+	return move{*best, track};
+      }
+    }
+  }
+  return pass;
+}
 
 // the idea of this strategy is to maintain as many tiles as
 // possible to play on own track, while playing remaining tiles on
@@ -124,14 +164,6 @@ class preserve_home : public strat {
 public:
   preserve_home(int pl, std::string description)
     : strat(pl), text(description) {}
-  /*
-    static std::unique_ptr<preserve_home> fat_chain(int pl, bool mode) {
-    auto it = std::make_unique<preserve_home>(pl, mode);
-    it->cmp = [](chain_stats x, chain_stats y) { return x.points > y.points; };
-    it->text = std::string{"fat_chain_"} + (mode?"MX":"P");
-    return it;
-  }
-  */
   std::string desc() const {
     return text;
   }
@@ -156,19 +188,62 @@ public:
 	return move{*pos, dd->to};
       }
     } else {
-      auto best = move_on_other(b, player,
-				hand.begin(), hand.end(), chain_length,
-				prefer_mx);
+      auto best = move_on_other_simple<prefer_mx>(b, player,
+						  hand.begin(), hand.end(),
+						  chain_length);
       if (best) return best;
     
       if (chain_length > 0) {
-	if (hand[0].has(b.tracks[train].end))
 	  return move{hand[0], train};
-	else {
-	  std::cout << "ERROR chain " << chain_length << " starts with "
-		    << hand[0] << "\n";
+      }
+    }
+
+    return best(legal.begin(), legal.end(),
+		[&b](move m) {
+		  return m.play.score();
+		});
+  }
+private:
+  cmp comparator;
+  std::string text;
+};
+
+template<bool prefer_mx, typename cmp>
+class preserve_2 : public strat {
+public:
+  preserve_2(int pl, std::string description)
+    : strat(pl), text(description) {}
+  std::string desc() const {
+    return text;
+  }
+  move operator () (const board& b) {
+    std::vector<move> legal;
+    find_moves(b, player, std::back_inserter(legal));
+    if (legal.empty()) return pass;
+    if (legal.size() == 1) return legal[0];
+
+    auto hand = b.hand_for(player);
+    short train = player;
+    auto chain_length = best_chain<cmp>(hand.begin(), hand.end(),
+					b.tracks[player].end).length;
+    if (auto dd = b.doubled()) {
+      if (dd->to == player) {
+	auto pos = std::find_if(hand.begin(), hand.end(),
+				[dd](auto t) { return t.has(dd->play.v1()); });
+	return move{*pos, train};
+      } else {
+	auto pos = std::find_if(hand.rbegin(), hand.rend(),
+				[dd](auto t) { return t.has(dd->play.v1()); });
+	return move{*pos, dd->to};
+      }
+    } else {
+      auto best = move_other_highest<prefer_mx>(b, player,
+						hand.begin(), hand.end(),
+						chain_length);
+      if (best) return best;
+    
+      if (chain_length > 0) {
 	  return move{hand[0], train};
-	}
       }
     }
 
