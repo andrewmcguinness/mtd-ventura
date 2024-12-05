@@ -6,14 +6,35 @@
 #include <optional>
 #include <memory>
 #include <iostream>
+#include <chrono>
+#include <cmath>
 #include "game.h"
 #include "strat.h"
 
+using std::chrono::steady_clock;
+using std::chrono::nanoseconds;
+
 struct batch_result {
-batch_result() : points(0), games(0) {}
+batch_result() : points(0), games(0), time(0L), t2(0L) {}
   int points;
   int games;
+  int moves;
+  steady_clock::duration time;
+  long t2; // ns
+  steady_clock::duration max;
   std::string strategy;
+  steady_clock::duration mean() const { return time / moves; }
+  void operator() (steady_clock::duration t) {
+    time += t;
+    moves += 1;
+    if (t > max) max = t;
+    long ns = std::chrono::duration_cast<nanoseconds>(t).count();
+    t2 += (ns*ns);
+  }
+  double sd() const {
+    double m = std::chrono::duration_cast<nanoseconds>(mean()).count();
+    return (std::sqrt(((double(t2))/moves) - (m*m)));
+  }
 };
 
 class batch {

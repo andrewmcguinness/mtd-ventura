@@ -1,5 +1,7 @@
 #include "batch.h"
 
+using std::chrono::nanoseconds;
+
 std::vector<batch_result> batch::results() const {
   return points;
 }
@@ -28,7 +30,14 @@ void batch::run_game(int n) {
     std::cout << b << "\n\n";
 
     while ((b.winner() == 0) && !b.stalled()) {
+      auto begin_tm = std::chrono::steady_clock::now();
       move m = get_move(b, player);
+      auto calc_time = std::chrono::steady_clock::now() - begin_tm;
+      score(player)(calc_time);
+      if (calc_time > nanoseconds(1000000)) {
+	std::cout << "Weird slow move " << calc_time << "\n"
+		  << b << "\n" << m << "\n";
+      }
       if (auto err = check_move(b, player, m)) {
 	std::cout << "Player " << player << " ERROR\n" << b << "\n" << m <<
 	  "\n" << *err << "\n";

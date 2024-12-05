@@ -2,11 +2,14 @@
 #include <memory>
 #include <random>
 #include <vector>
+#include <chrono>
 #include "game.h"
 #include "text.h"
 #include "moves.h"
 #include "strat.h"
 #include "batch.h"
+
+using std::chrono::milliseconds;
 
 int hand_score(const std::vector<tile>& h) {
   return std::transform_reduce(h.begin(), h.end(), 0, std::plus<int>(),
@@ -27,7 +30,15 @@ int main(int, char* []) {
   std::cout << "\n\nAfter " << iterations << " full games:\n"
 	    << runs.total_moves() << " moves\n";
   for (auto p : runs.results()) {
-    std::cout << "Player " << ++result_player << "(" << p.strategy << ") : "
+    std::cout << "Player " << ++result_player << "(" << p.strategy
+	      << ") : "
 	      << p.games << " wins, " << p.points << " points\n";
+  }
+
+  std::cout << "\n\nTimings\n";
+  for (auto p : runs.results()) {
+    std::cout << "Player " << ++result_player << "(" << p.strategy
+	      << ") ave " << p.mean() << " t2 " << p.t2 << " sd "
+	      << p.sd() << "\n";
   }
 };

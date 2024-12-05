@@ -5,6 +5,7 @@
 #include "game.h"
 #include "strat.h"
 #include <vector>
+#include <chrono>
 
 TEST_CASE("no chain") {
   tiles it = { {3,2}, {4,3}, {5,4}, {5,3}, {4,2}, {5,2}, {6,2}, {6,3}, {6,5} };
@@ -65,4 +66,13 @@ TEST_CASE("error 1b") {
   CHECK(chain.length == 4);
   CHECK(it[0] == tile{8,6});
   CHECK(it[1] == tile{6,1});
+}
+
+TEST_CASE("slow chain") {
+  tiles it = {{9,3}, {7,0}, {3,2}, {7,1}, {1,1}, {7,5}, {11,0}, {6,0}, {1,0}, {5,5}, {6,3}, {2,2}, {12,0}, {5,1}, {5,2}, {11,7}, {6,5}, {12,6}, {12,7}};
+  auto begin_tm = std::chrono::steady_clock::now();
+  auto chain = best_chain<longer_chain>(it.begin(), it.end(), 1);
+  auto calc_time = std::chrono::steady_clock::now() - begin_tm;
+  CHECK(chain.length == 17);
+  CHECK(calc_time < std::chrono::microseconds(10));
 }
