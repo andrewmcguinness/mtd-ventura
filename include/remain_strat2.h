@@ -7,6 +7,38 @@
 
 // more double-aware version of remain_chain
 class remain_chain_d : public strat {
+  struct accum {
+    accum() : best_score{}, best_move{pass} {}
+    bool add(int len, tile t2, move mv) {
+      int score = mv.play.score() + t2.score();
+      len += 1;
+
+      if ((best_move == pass) ||
+          (len > best_length) ||
+          ((len == best_length) && (score > best_score))) {
+        best_length = len;
+        best_score = score;
+        best_move = mv;
+        return true;
+      }
+      return false;
+    }
+    bool add(int len, move mv) {
+      int score = mv.play.score();
+      if ((best_move == pass) ||
+          (len > best_length) ||
+          ((len == best_length) && (score > best_score))) {
+        best_length = len;
+        best_score = score;
+        best_move = mv;
+        return true;
+      }
+      return false;
+    }
+    int best_length;
+    int best_score;
+    move best_move;
+  };
 public:
  remain_chain_d(int pl, std::string description)
    : strat(pl), text(description) {}
@@ -22,8 +54,7 @@ public:
     auto hand = b.hand_for(player);
     short train = player;
 
-    auto best_move{pass};
-    int best{-10};
+    accum best;
     auto copy = hand;
     auto my_chain_start = b.tracks[train].end;
     for (auto mv : legal) {
@@ -42,38 +73,24 @@ public:
             auto next_val = my_chain_rest;
             if (mv.to == train) next_val = t2->other(match);
             chain_length = best_chain<longer_chain>(rest + 1,
-                                                    copy.end(), next_val).length + 1;
-            if ((best_move == pass) ||
-                (chain_length > best) ||
-                ((chain_length == best) && (t.score() > best_move.play.score()))) {
-              best = chain_length;
-              best_move = mv;
-            }
+                                                    copy.end(), next_val).length;
+            best.add(chain_length, t, mv);
           }
         }
         if (!can_move_again) {
+          // apply a penalty because will have to draw
           chain_length = best_chain<longer_chain>(rest,
                                                   copy.end(), my_chain_rest).length - 1;
-        }
-        if ((best_move == pass) ||
-            (chain_length > best) ||
-            ((chain_length == best) && (t.score() > best_move.play.score()))) {
-          best = chain_length;
-          best_move = mv;
+          best.add(chain_length, mv);
         }
       } else {
+        // not a double
         chain_length = best_chain<longer_chain>(copy.begin() + 1, copy.end(),
                                                 my_chain_rest).length;
-      
-        if ((best_move == pass) ||
-            (chain_length > best) ||
-            ((chain_length == best) && (t.score() > best_move.play.score()))) {
-          best = chain_length;
-          best_move = mv;
-        }
+        best.add(chain_length, mv);
       }
     }
-    return best_move;
+    return best.best_move;
   }
 private:
   std::string text;
