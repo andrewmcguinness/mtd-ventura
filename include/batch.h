@@ -39,9 +39,10 @@ batch_result() : points(0), games(0), time(0L), t2(0L) {}
 
 class batch {
 public:
-  batch(std::vector<std::unique_ptr<strat>>&& strategies)
+  batch(std::vector<std::unique_ptr<strat>>&& strategies, bool log)
     : num_players(strategies.size()), strats(std::move(strategies)),
-    starting_player(1), points(num_players), game_count(0), move_count(0)
+      enable_log(log),
+      starting_player(1), points(num_players), game_count(0), move_count(0)
   {
     for (int i = 0 ; i < num_players; ++i) points[i].strategy = strats[i]->desc();
   }
@@ -54,6 +55,7 @@ private:
   move get_move(const board& bd, int pl) { return (*strats[pl-1])(bd); }
   int num_players;
   std::vector<std::unique_ptr<strat>> strats;
+  bool enable_log;
   int starting_player;
   std::vector<batch_result> points;
   int game_count;

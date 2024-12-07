@@ -14,9 +14,9 @@ struct tile_pos {
 };
 
 struct tile {
-  tile(int v1, int v2) : val((v1<<4) + v2) {}
-  int v1() const { return ((unsigned)val) >> 4; }
-  int v2() const { return val & 0x0f; }
+  tile(int v1, int v2) : val((v1<<8) + v2) {}
+  int v1() const { return ((unsigned)val) >> 8; }
+  int v2() const { return val & 0xff; }
   int v(int n) const { return (n==1)?v2():v1(); }
   bool dub() const { return v1() == v2(); }
   int score() const { return v1() + v2() + (val?0:30); }
@@ -25,7 +25,7 @@ struct tile {
   bool operator == (const tile& other) const { return val == other.val; }
   bool operator < (const tile& other) const { return val < other.val; }
   bool operator > (const tile& other) const { return val > other.val; }
-  unsigned char val;
+  int val;
 };
 
 struct pool {

@@ -34,13 +34,18 @@ void batch::run_game(int n) {
       move m = get_move(b, player);
       auto calc_time = std::chrono::steady_clock::now() - begin_tm;
       score(player)(calc_time);
-      if (calc_time > nanoseconds(1000000)) {
-	std::cout << "Weird slow move " << calc_time << "\n"
+      if (enable_log) {
+	std::cout << "Player " << player << " move in " << calc_time << "\n"
 		  << b << "\n" << m << "\n";
+      } else {
+        if (calc_time > nanoseconds(100000000)) {
+          std::cout << "Weird slow move " << calc_time << "\n"
+                    << b << "\n" << m << "\n";
+        }
       }
       if (auto err = check_move(b, player, m)) {
-	std::cout << "Player " << player << " ERROR\n" << b << "\n" << m <<
-	  "\n" << *err << "\n";
+        std::cout << "Player " << player << " ERROR\n" << b << "\n" << m <<
+          "\n" << *err << "\n";
 	return;
       }
       if (m) {
