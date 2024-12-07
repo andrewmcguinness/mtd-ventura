@@ -7,29 +7,6 @@
 
 // more double-aware version of remain_chain
 class remain_chain_d : public strat {
-  struct accum {
-    accum() : best_score{}, best_move{pass} {}
-    bool add_x(int len, int score, move mv) {
-      if ((best_move == pass) ||
-          (len > best_length) ||
-          ((len == best_length) && (score > best_score))) {
-        best_length = len;
-        best_score = score;
-        best_move = mv;
-        return true;
-      }
-      return false;
-    }
-    bool add(int len, tile t2, move mv) {
-      return add_x(len + 1, mv.play.score() + t2.score(), mv);
-    }
-    bool add(int len, move mv) {
-      return add_x(len, mv.play.score(), mv);
-    }
-    int best_length;
-    int best_score;
-    move best_move;
-  };
 public:
  remain_chain_d(int pl, std::string description)
    : strat(pl), text(description) {}
@@ -85,4 +62,28 @@ public:
   }
 private:
   std::string text;
+
+  struct accum {
+    accum() : best_score{}, best_move{pass} {}
+    bool add_x(int len, int score, move mv) {
+      if ((best_move == pass) ||
+          (len > best_length) ||
+          ((len == best_length) && (score > best_score))) {
+        best_length = len;
+        best_score = score;
+        best_move = mv;
+        return true;
+      }
+      return false;
+    }
+    bool add(int len, tile t2, move mv) {
+      return add_x(len + 1, mv.play.score() + t2.score(), mv);
+    }
+    bool add(int len, move mv) {
+      return add_x(len, mv.play.score(), mv);
+    }
+    int best_length;
+    int best_score;
+    move best_move;
+  };
 };
