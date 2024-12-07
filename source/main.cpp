@@ -29,7 +29,7 @@ int main(int argc, char* argv[]) {
   strategies.push_back(std::make_unique<preserve_home<true, quicker_chain>>(1, "quick chains"));
   strategies.push_back(std::make_unique<remain_chain>(2, "long remaining chain"));
   strategies.push_back(std::make_unique<preserve_2<true, fatter_chain>>(3, "fat chains, highest first"));
-  strategies.push_back(std::make_unique<remain_chain_d>(4, "long remaining chain, double aware"));
+  strategies.push_back(std::make_unique<remain_chain_d<false>>(4, "long remaining chain, double aware"));
 
   batch runs(std::move(strategies), log);
   runs.run_games(iterations);

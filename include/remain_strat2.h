@@ -6,6 +6,7 @@
 #include "strat.h"
 
 // more double-aware version of remain_chain
+template<bool penalty>
 class remain_chain_d : public strat {
 public:
  remain_chain_d(int pl, std::string description)
@@ -47,8 +48,12 @@ public:
         }
         if (!can_move_again) {
           // apply a penalty because will have to draw
-          chain_length = best_chain<longer_chain>(rest,
-                                                  copy.end(), my_chain_rest).length - 1;
+          if (penalty)
+            chain_length = best_chain<longer_chain>(rest,
+                                                    copy.end(), my_chain_rest).length - 1;
+          else
+            chain_length = best_chain<longer_chain>(rest,
+                                                    copy.end(), my_chain_rest).length;
           best.add(chain_length, mv);
         }
       } else {
