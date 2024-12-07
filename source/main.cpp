@@ -7,6 +7,8 @@
 #include "text.h"
 #include "moves.h"
 #include "strat.h"
+#include "remain_strat1.h"
+#include "remain_strat2.h"
 #include "batch.h"
 
 using std::chrono::milliseconds;
@@ -19,7 +21,7 @@ int hand_score(const std::vector<tile>& h) {
 int main(int argc, char* argv[]) {
   int iterations = 1000;
   bool log = false;
-  if (argc > 1) && (std::string(argv[1]) == "once")) {
+  if ((argc > 1) && (std::string(argv[1]) == "once")) {
     iterations = 1;
     log = true;
   }
@@ -27,7 +29,7 @@ int main(int argc, char* argv[]) {
   strategies.push_back(std::make_unique<preserve_home<true, quicker_chain>>(1, "quick chains"));
   strategies.push_back(std::make_unique<remain_chain>(2, "long remaining chain"));
   strategies.push_back(std::make_unique<preserve_2<true, fatter_chain>>(3, "fat chains, highest first"));
-  strategies.push_back(std::make_unique<preserve_2<true, quicker_chain>>(4, "quick chains, highest first"));
+  strategies.push_back(std::make_unique<remain_chain_d>(4, "long remaining chain, double aware"));
 
   batch runs(std::move(strategies), log);
   runs.run_games(iterations);
